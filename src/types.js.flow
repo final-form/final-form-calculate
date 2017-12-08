@@ -5,8 +5,7 @@ export type Updates = {
   [FieldName]: (value: any, allValues: Object) => any
 }
 
-type Calculation = {
+export type Calculation = {
   field: FieldPattern,
   updates: Updates
 }
-export type Calculations = Calculation[]

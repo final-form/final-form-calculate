@@ -63,8 +63,23 @@ const undecorate = decorator(form)
 
 ## API
 
-### `createDecorator
+### `createDecorator: (...calculations: Calculation[]): Decorator`
 
-### `form.mutators.setFieldData(name: string, values: Object) => void`
+A function that takes a set of calculations and returns a 🏁 Final Form
+[`Decorator`](https://github.com/final-form/final-form#decorator-form-formapi--unsubscribe).
 
-Merges the values provided into the `data` value for the specified field
+## Types
+
+### `Calculation: { field: FieldPattern, updates: Updates }`
+
+A calculation to perform
+
+### `FieldName: string`
+
+### `FieldPattern: FieldName | RegExp`
+
+A pattern to match a field with.
+
+### `Updates: { [FieldName]: (value: any, allValues: Object) => any }`
+
+Updates to make on other fields.

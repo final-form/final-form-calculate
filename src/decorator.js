@@ -1,9 +1,9 @@
 // @flow
 import type { Decorator, FormApi } from 'final-form'
-import type { Calculations, Updates } from './types'
+import type { Calculation, Updates } from './types'
 import { getIn } from 'final-form'
 
-const createDecorator = (...calculations: Calculations): Decorator => (
+const createDecorator = (...calculations: Calculation[]): Decorator => (
   form: FormApi
 ) => {
   let previousValues = {}
