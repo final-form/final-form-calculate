@@ -178,7 +178,7 @@ describe('decorator', () => {
     form.change('items[0]', 3)
 
     expect(sum).toHaveBeenCalled()
-    expect(sum).toHaveBeenCalledTimes(2)
+    expect(sum).toHaveBeenCalledTimes(1)
 
     expect(spy).toHaveBeenCalledTimes(3)
     expect(spy.mock.calls[1][0].values).toEqual({ items: [3] })
@@ -188,7 +188,7 @@ describe('decorator', () => {
     form.change('items[1]', 4)
 
     expect(sum).toHaveBeenCalled()
-    expect(sum).toHaveBeenCalledTimes(4)
+    expect(sum).toHaveBeenCalledTimes(2)
 
     expect(spy).toHaveBeenCalledTimes(5)
     expect(spy.mock.calls[3][0].values).toEqual({ items: [3, 4], total: 3 })
@@ -198,7 +198,7 @@ describe('decorator', () => {
     form.change('items[2]', 5)
 
     expect(sum).toHaveBeenCalled()
-    expect(sum).toHaveBeenCalledTimes(6)
+    expect(sum).toHaveBeenCalledTimes(3)
 
     expect(spy).toHaveBeenCalledTimes(7)
     expect(spy.mock.calls[5][0].values).toEqual({ items: [3, 4, 5], total: 7 })
