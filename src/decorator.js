@@ -9,31 +9,33 @@ const createDecorator = (...calculations: Calculation[]): Decorator => (
   let previousValues = {}
   const unsubscribe = form.subscribe(
     ({ values }) => {
-      const runUpdates = (field: string, updates: Updates) => {
-        const next = getIn(values, field)
-        const previous = getIn(previousValues, field)
-        if (next !== previous) {
-          Object.keys(updates).forEach(destField => {
-            const update = updates[destField]
-            form.change(destField, update(next, values))
-          })
+      form.batch(() => {
+        const runUpdates = (field: string, updates: Updates) => {
+          const next = getIn(values, field)
+          const previous = getIn(previousValues, field)
+          if (next !== previous) {
+            Object.keys(updates).forEach(destField => {
+              const update = updates[destField]
+              form.change(destField, update(next, values))
+            })
+          }
         }
-      }
-      const fields = form.getRegisteredFields()
-      calculations.forEach(({ field, updates }) => {
-        if (typeof field === 'string') {
-          runUpdates(field, updates)
-        } else {
-          // field is a regex
-          const regex = (field: RegExp)
-          fields.forEach(fieldName => {
-            if (regex.test(fieldName)) {
-              runUpdates(fieldName, updates)
-            }
-          })
-        }
+        const fields = form.getRegisteredFields()
+        calculations.forEach(({ field, updates }) => {
+          if (typeof field === 'string') {
+            runUpdates(field, updates)
+          } else {
+            // field is a regex
+            const regex = (field: RegExp)
+            fields.forEach(fieldName => {
+              if (regex.test(fieldName)) {
+                runUpdates(fieldName, updates)
+              }
+            })
+          }
+        })
+        previousValues = values
       })
-      previousValues = values
     },
     { values: true }
   )

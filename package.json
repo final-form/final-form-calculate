@@ -1,6 +1,6 @@
 {
   "name": "final-form-calculate",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description":
     "Decorator for calculating field values based on other field values in 🏁 Final Form",
   "main": "dist/final-form-calculate.cjs.js",
