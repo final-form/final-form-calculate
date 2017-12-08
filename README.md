@@ -61,6 +61,33 @@ const undecorate = decorator(form)
 // Use form as normal
 ```
 
+## Table of Contents
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+* [Example](#example)
+  * [Calculated Fields Example](#calculated-fields-example)
+* [API](#api)
+  * [`createDecorator: (...calculations: Calculation[]) => Decorator`](#createdecorator-calculations-calculation--decorator)
+* [Types](#types)
+  * [`Calculation: { field: FieldPattern, updates: Updates }`](#calculation--field-fieldpattern-updates-updates-)
+  * [`FieldName: string`](#fieldname-string)
+  * [`FieldPattern: FieldName | RegExp`](#fieldpattern-fieldname--regexp)
+  * [`Updates: { [FieldName]: (value: any, allValues: Object) => any }`](#updates--fieldname-value-any-allvalues-object--any-)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Example
+
+### [Calculated Fields Example](https://codesandbox.io/s/oq52p6v96y)
+
+Example using
+[🏁 React Final Form](https://github.com/final-form/react-final-form#-react-final-form).
+
 ## API
 
 ### `createDecorator: (...calculations: Calculation[]) => Decorator`
