@@ -63,7 +63,7 @@ const undecorate = decorator(form)
 
 ## API
 
-### `createDecorator: (...calculations: Calculation[]): Decorator`
+### `createDecorator: (...calculations: Calculation[]) => Decorator`
 
 A function that takes a set of calculations and returns a 🏁 Final Form
 [`Decorator`](https://github.com/final-form/final-form#decorator-form-formapi--unsubscribe).
