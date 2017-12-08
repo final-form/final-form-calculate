@@ -1,7 +1,7 @@
 // @flow
 import type { Decorator } from 'final-form'
-import type { Calculations } from './types'
+import type { Calculation } from './types'
 
 declare export default function createDecorator(
-  ...calculations: Calculations
+  ...calculations: Calculation[]
 ): Decorator
