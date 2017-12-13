@@ -38,12 +38,10 @@ const decorator = createDecorator(
   // Calculations:
   {
     field: 'foo', // when the value of foo changes...
-    updates: [
-      {
-        // ...set field "doubleFoo" to twice the value of foo
-        doubleFoo: (fooValue, allValues) => fooValue * 2
-      }
-    ]
+    updates: {
+      // ...set field "doubleFoo" to twice the value of foo
+      doubleFoo: (fooValue, allValues) => fooValue * 2
+    }
   },
   {
     field: /items\[\d+\]/, // when a field matching this pattern changes...
