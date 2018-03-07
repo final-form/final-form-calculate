@@ -27,7 +27,7 @@ yarn add final-form-calculate
 ## Usage
 
 ```js
-import { createForm } from 'final-form'
+import { createForm, getIn } from 'final-form'
 import createDecorator from 'final-form-calculate'
 
 // Create Form
@@ -49,6 +49,20 @@ const decorator = createDecorator(
       // ...sets field "total" to the sum of all items
       total: (itemValue, allValues) =>
         (allValues.items || []).reduce((sum, value) => sum + value, 0)
+    }
+  },
+  {
+    field: /\.timeFrom/, // when a deeper field matching this pattern changes...
+    updates: (value, name, allValues) => {
+      const toField = name.replace('timeFrom', 'timeTo')
+      const toValue = getIn(allValues, toField)
+      if (toValue && value > toValue) {
+        return {
+          [toField]: value
+        }
+      }
+
+      return {}
     }
   }
 )
