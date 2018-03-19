@@ -204,4 +204,78 @@ describe('decorator', () => {
     expect(spy.mock.calls[5][0].values).toEqual({ items: [3, 4, 5], total: 7 })
     expect(spy.mock.calls[6][0].values).toEqual({ items: [3, 4, 5], total: 12 })
   })
+
+  it('should allow seperate array summing', () => {
+    const form = createForm({ onSubmit: onSubmitMock })
+    const spy = jest.fn()
+    const total = jest.fn()
+    const sum = jest.fn((itemValue, allValues) =>
+      (allValues.list[0].items || []).reduce((sum, item) => sum + item, 0)
+    )
+    form.subscribe(spy, { values: true })
+    form.registerField('list[0].items[0]', () => {}, {})
+    form.registerField('list[0].items[1]', () => {}, {})
+    form.registerField('list[0].items[2]', () => {}, {})
+    form.registerField('list[0].total', total, { value: true })
+    const decorator = createDecorator({
+      field: /\.items\[\d+\]/,
+      updates: (value, name, all) => {
+        const totalField = name.replace(/items\[[0-9]+\]/, 'total')
+        return {
+          [totalField]: sum(value, all)
+        }
+      }
+    })
+    decorator(form)
+
+    expect(spy).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy.mock.calls[0][0].values).toEqual({})
+
+    expect(total).toHaveBeenCalled()
+    expect(total).toHaveBeenCalledTimes(1)
+    expect(total.mock.calls[0][0].value).toBeUndefined()
+
+    expect(sum).not.toHaveBeenCalled()
+
+    // change first item value
+    form.change('list[0].items[0]', 3)
+
+    expect(sum).toHaveBeenCalled()
+    expect(sum).toHaveBeenCalledTimes(1)
+
+    expect(spy).toHaveBeenCalledTimes(3)
+    expect(spy.mock.calls[1][0].values).toEqual({ list: [{ items: [3] }] })
+    expect(spy.mock.calls[2][0].values).toEqual({
+      list: [{ items: [3], total: 3 }]
+    })
+
+    // change second item value
+    form.change('list[0].items[1]', 4)
+
+    expect(sum).toHaveBeenCalled()
+    expect(sum).toHaveBeenCalledTimes(2)
+
+    expect(spy).toHaveBeenCalledTimes(5)
+    expect(spy.mock.calls[3][0].values).toEqual({
+      list: [{ items: [3, 4], total: 3 }]
+    })
+    expect(spy.mock.calls[4][0].values).toEqual({
+      list: [{ items: [3, 4], total: 7 }]
+    })
+
+    // change third item value
+    form.change('list[0].items[2]', 5)
+
+    expect(sum).toHaveBeenCalled()
+    expect(sum).toHaveBeenCalledTimes(3)
+
+    expect(spy).toHaveBeenCalledTimes(7)
+    expect(spy.mock.calls[5][0].values).toEqual({
+      list: [{ items: [3, 4, 5], total: 7 }]
+    })
+    expect(spy.mock.calls[6][0].values).toEqual({
+      list: [{ items: [3, 4, 5], total: 12 }]
+    })
+  })
 })

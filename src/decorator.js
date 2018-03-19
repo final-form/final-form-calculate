@@ -14,10 +14,17 @@ const createDecorator = (...calculations: Calculation[]): Decorator => (
           const next = getIn(values, field)
           const previous = getIn(previousValues, field)
           if (next !== previous) {
-            Object.keys(updates).forEach(destField => {
-              const update = updates[destField]
-              form.change(destField, update(next, values))
-            })
+            if (typeof updates === 'function') {
+              const results = updates(next, field, values)
+              Object.keys(results).forEach(destField => {
+                form.change(destField, results[destField])
+              })
+            } else {
+              Object.keys(updates).forEach(destField => {
+                const update = updates[destField]
+                form.change(destField, update(next, values))
+              })
+            }
           }
         }
         const fields = form.getRegisteredFields()
