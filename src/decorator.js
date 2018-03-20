@@ -3,6 +3,7 @@ import type { Decorator, FormApi } from 'final-form'
 import type { Calculation, Updates } from './types'
 import { getIn } from 'final-form'
 
+const tripleEquals = (a: any, b: any) => a === b
 const createDecorator = (...calculations: Calculation[]): Decorator => (
   form: FormApi
 ) => {
@@ -10,10 +11,14 @@ const createDecorator = (...calculations: Calculation[]): Decorator => (
   const unsubscribe = form.subscribe(
     ({ values }) => {
       form.batch(() => {
-        const runUpdates = (field: string, updates: Updates) => {
+        const runUpdates = (
+          field: string,
+          isEqual: (any, any) => boolean,
+          updates: Updates
+        ) => {
           const next = values && getIn(values, field)
           const previous = previousValues && getIn(previousValues, field)
-          if (next !== previous) {
+          if (!isEqual(next, previous)) {
             if (typeof updates === 'function') {
               const results = updates(next, field, values)
               Object.keys(results).forEach(destField => {
@@ -28,15 +33,15 @@ const createDecorator = (...calculations: Calculation[]): Decorator => (
           }
         }
         const fields = form.getRegisteredFields()
-        calculations.forEach(({ field, updates }) => {
+        calculations.forEach(({ field, isEqual, updates }) => {
           if (typeof field === 'string') {
-            runUpdates(field, updates)
+            runUpdates(field, isEqual || tripleEquals, updates)
           } else {
             // field is a regex
             const regex = (field: RegExp)
             fields.forEach(fieldName => {
               if (regex.test(fieldName)) {
-                runUpdates(fieldName, updates)
+                runUpdates(fieldName, isEqual || tripleEquals, updates)
               }
             })
           }
