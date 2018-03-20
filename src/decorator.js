@@ -37,10 +37,12 @@ const createDecorator = (...calculations: Calculation[]): Decorator => (
           if (typeof field === 'string') {
             runUpdates(field, isEqual || tripleEquals, updates)
           } else {
-            // field is a regex
-            const regex = (field: RegExp)
+            // field is a either array or regex
+            const matches = Array.isArray(field)
+              ? name => ~field.indexOf(name)
+              : name => (field: RegExp).test(name)
             fields.forEach(fieldName => {
-              if (regex.test(fieldName)) {
+              if (matches(fieldName)) {
                 runUpdates(fieldName, isEqual || tripleEquals, updates)
               }
             })
