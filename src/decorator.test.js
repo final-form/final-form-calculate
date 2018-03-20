@@ -219,7 +219,7 @@ describe('decorator', () => {
     form.registerField('list[0].total', total, { value: true })
     const decorator = createDecorator({
       field: /\.items\[\d+\]/,
-      updates: (name, value, all) => {
+      updates: (value, name, all) => {
         const totalField = name.replace(/items\[[0-9]+\]/, 'total')
         return {
           [totalField]: sum(value, all)

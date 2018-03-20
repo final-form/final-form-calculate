@@ -5,8 +5,8 @@ export type UpdatesByName = {
   [FieldName]: (value: any, allValues: ?Object) => any
 }
 export type UpdatesForAll = (
-  field: string,
   value: any,
+  field: string,
   allValues: ?Object
 ) => { [FieldName]: any }
 export type Updates = UpdatesByName | UpdatesForAll

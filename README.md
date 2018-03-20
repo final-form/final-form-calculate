@@ -127,6 +127,6 @@ Either an object of updater functions or a function that generates updates for m
 
 Updater functions for each calculated field.
 
-### `UpdatesForAll: (field: string, value: any, allValues: Object) => { [FieldName]: any }`
+### `UpdatesForAll: (value: any, field: string, allValues: Object) => { [FieldName]: any }`
 
-Takes the name and value of the field that just changed, as well as all the values, and returns an object of fields and new values.
+Takes the value and name of the field that just changed, as well as all the values, and returns an object of fields and new values.
