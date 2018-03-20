@@ -11,11 +11,11 @@ const createDecorator = (...calculations: Calculation[]): Decorator => (
     ({ values }) => {
       form.batch(() => {
         const runUpdates = (field: string, updates: Updates) => {
-          const next = getIn(values, field)
-          const previous = getIn(previousValues, field)
+          const next = values && getIn(values, field)
+          const previous = previousValues && getIn(previousValues, field)
           if (next !== previous) {
             if (typeof updates === 'function') {
-              const results = updates(next, field, values)
+              const results = updates(field, next, values)
               Object.keys(results).forEach(destField => {
                 form.change(destField, results[destField])
               })

@@ -1,9 +1,15 @@
 // @flow
 type FieldName = string
 export type FieldPattern = FieldName | RegExp
-export type Updates = {
-  [FieldName]: (value: any, allValues: Object) => any
+export type UpdatesByName = {
+  [FieldName]: (value: any, allValues: ?Object) => any
 }
+export type UpdatesForAll = (
+  field: string,
+  value: any,
+  allValues: ?Object
+) => { [FieldName]: any }
+export type Updates = UpdatesByName | UpdatesForAll
 
 export type Calculation = {
   field: FieldPattern,

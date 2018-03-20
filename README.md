@@ -119,6 +119,14 @@ A calculation to perform
 
 A pattern to match a field with.
 
-### `Updates: { [FieldName]: (value: any, allValues: Object) => any }`
+### `Updates: UpdatesByName | UpdatesForAll`
 
-Updates to make on other fields.
+Either an object of updater functions or a function that generates updates for multiple fields.
+
+### `UpdatesByName: { [FieldName]: (value: any, allValues: Object) => any }`
+
+Updater functions for each calculated field.
+
+### `UpdatesForAll: (field: string, value: any, allValues: Object) => { [FieldName]: any }`
+
+Takes the name and value of the field that just changed, as well as all the values, and returns an object of fields and new values.
