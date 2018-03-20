@@ -355,4 +355,86 @@ describe('decorator', () => {
     expect(spy.mock.calls[4][0].values).toEqual({ minimum: 3, maximum: 2 })
     expect(spy.mock.calls[5][0].values).toEqual({ minimum: 2, maximum: 2 })
   })
+
+  it('should allow alternate isEqual function', () => {
+    const form = createForm({ onSubmit: onSubmitMock })
+    const spy = jest.fn()
+    const foo = jest.fn()
+    const bar = jest.fn()
+    form.subscribe(spy, { values: true })
+    form.registerField('foo', foo, { value: true })
+    form.registerField('bar', bar, { value: true })
+    const decorator = createDecorator({
+      field: 'foo',
+      isEqual: (a, b) =>
+        (a === undefined ? undefined : a.id) ===
+        (b === undefined ? undefined : b.id),
+      updates: {
+        bar: fooValue => ({ id: fooValue.id + 1, name: `${fooValue.name}bar` })
+      }
+    })
+    const unsubscribe = decorator(form)
+    expect(typeof unsubscribe).toBe('function')
+
+    expect(spy).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy.mock.calls[0][0].values).toEqual({})
+
+    expect(foo).toHaveBeenCalled()
+    expect(foo).toHaveBeenCalledTimes(1)
+    expect(foo.mock.calls[0][0].value).toBeUndefined()
+
+    expect(bar).toHaveBeenCalled()
+    expect(bar).toHaveBeenCalledTimes(1)
+    expect(bar.mock.calls[0][0].value).toBeUndefined()
+
+    // change foo (should trigger calculation on bar)
+    form.change('foo', { id: 1, name: 'baz' })
+
+    expect(spy).toHaveBeenCalledTimes(3)
+    expect(spy.mock.calls[1][0].values).toEqual({ foo: { id: 1, name: 'baz' } })
+    expect(spy.mock.calls[2][0].values).toEqual({
+      foo: { id: 1, name: 'baz' },
+      bar: { id: 2, name: 'bazbar' }
+    })
+
+    expect(foo).toHaveBeenCalledTimes(2)
+    expect(foo.mock.calls[1][0].value).toEqual({ id: 1, name: 'baz' })
+
+    expect(bar).toHaveBeenCalledTimes(2)
+    expect(bar.mock.calls[1][0].value).toEqual({ id: 2, name: 'bazbar' })
+
+    // change foo's name, but not id
+    form.change('foo', { id: 1, name: 'superbaz' })
+
+    expect(spy).toHaveBeenCalledTimes(4)
+    expect(spy.mock.calls[3][0].values).toEqual({
+      foo: { id: 1, name: 'superbaz' },
+      bar: { id: 2, name: 'bazbar' }
+    })
+
+    expect(foo).toHaveBeenCalledTimes(3)
+    expect(foo.mock.calls[2][0].value).toEqual({ id: 1, name: 'superbaz' })
+
+    expect(bar).toHaveBeenCalledTimes(2)
+
+    // change foo's id: should trigger calculation
+    form.change('foo', { id: 3, name: 'superbaz' })
+
+    expect(spy).toHaveBeenCalledTimes(6)
+    expect(spy.mock.calls[4][0].values).toEqual({
+      foo: { id: 3, name: 'superbaz' },
+      bar: { id: 2, name: 'bazbar' }
+    })
+    expect(spy.mock.calls[5][0].values).toEqual({
+      foo: { id: 3, name: 'superbaz' },
+      bar: { id: 4, name: 'superbazbar' }
+    })
+
+    expect(foo).toHaveBeenCalledTimes(4)
+    expect(foo.mock.calls[3][0].value).toEqual({ id: 3, name: 'superbaz' })
+
+    expect(bar).toHaveBeenCalledTimes(3)
+    expect(bar.mock.calls[2][0].value).toEqual({ id: 4, name: 'superbazbar' })
+  })
 })

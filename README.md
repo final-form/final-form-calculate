@@ -109,9 +109,9 @@ A function that takes a set of calculations and returns a 🏁 Final Form
 
 ## Types
 
-### `Calculation: { field: FieldPattern, updates: Updates }`
+### `Calculation: { field: FieldPattern, isEqual?: (any, any) => boolean, updates: Updates }`
 
-A calculation to perform
+A calculation to perform, with an optional `isEqual` predicate to determine if a value has really changed (defaults to `===`).
 
 ### `FieldName: string`
 
