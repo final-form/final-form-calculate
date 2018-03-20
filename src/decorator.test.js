@@ -205,7 +205,7 @@ describe('decorator', () => {
     expect(spy.mock.calls[6][0].values).toEqual({ items: [3, 4, 5], total: 12 })
   })
 
-  it('should allow seperate array summing', () => {
+  it('should allow separate array summing', () => {
     const form = createForm({ onSubmit: onSubmitMock })
     const spy = jest.fn()
     const total = jest.fn()
@@ -277,5 +277,82 @@ describe('decorator', () => {
     expect(spy.mock.calls[6][0].values).toEqual({
       list: [{ items: [3, 4, 5], total: 12 }]
     })
+  })
+
+  it('should notify form subscribers of updated values', () => {
+    const form = createForm({ onSubmit: onSubmitMock })
+    const spy = jest.fn()
+    const minimum = jest.fn()
+    const maximum = jest.fn()
+    const calcMax = jest.fn((minimumValue, allValues) =>
+      Math.max(minimumValue || 0, allValues.maximum || 0)
+    )
+    const calcMin = jest.fn((maximumValue, allValues) =>
+      Math.min(maximumValue || 0, allValues.minimum || 0)
+    )
+    form.subscribe(spy, { values: true })
+    form.registerField('minimum', minimum, { value: true })
+    form.registerField('maximum', maximum, { value: true })
+    const decorator = createDecorator(
+      {
+        field: 'minimum', // when minimum changes...
+        updates: {
+          // ...update maximum to the result of this function
+          maximum: calcMax
+        }
+      },
+      {
+        field: 'maximum', // when maximum changes...
+        updates: {
+          // update minimum to the result of this function
+          minimum: calcMin
+        }
+      }
+    )
+    decorator(form)
+
+    expect(spy).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy.mock.calls[0][0].values).toEqual({})
+
+    expect(minimum).toHaveBeenCalled()
+    expect(minimum).toHaveBeenCalledTimes(1)
+    expect(minimum.mock.calls[0][0].value).toBeUndefined()
+
+    expect(maximum).toHaveBeenCalled()
+    expect(maximum).toHaveBeenCalledTimes(1)
+    expect(maximum.mock.calls[0][0].value).toBeUndefined()
+
+    expect(calcMax).not.toHaveBeenCalled()
+    expect(calcMin).not.toHaveBeenCalled()
+
+    // change minimum
+    form.change('minimum', 3)
+
+    expect(calcMax).toHaveBeenCalled()
+    expect(calcMax).toHaveBeenCalledTimes(1)
+    expect(calcMin).toHaveBeenCalled()
+    expect(calcMin).toHaveBeenCalledTimes(1)
+
+    expect(spy).toHaveBeenCalledTimes(3)
+    expect(spy.mock.calls[1][0].values).toEqual({ minimum: 3 })
+    expect(spy.mock.calls[2][0].values).toEqual({ minimum: 3, maximum: 3 })
+
+    // raise maximum higher
+    form.change('maximum', 5)
+
+    expect(calcMin).toHaveBeenCalledTimes(2)
+
+    expect(spy).toHaveBeenCalledTimes(4)
+    expect(spy.mock.calls[3][0].values).toEqual({ minimum: 3, maximum: 5 })
+
+    form.change('maximum', 2)
+
+    expect(calcMin).toHaveBeenCalledTimes(3)
+    expect(calcMax).toHaveBeenCalledTimes(2)
+
+    expect(spy).toHaveBeenCalledTimes(6)
+    expect(spy.mock.calls[4][0].values).toEqual({ minimum: 3, maximum: 2 })
+    expect(spy.mock.calls[5][0].values).toEqual({ minimum: 2, maximum: 2 })
   })
 })
