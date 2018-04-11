@@ -7,6 +7,7 @@
   "jsnext:main": "dist/final-form-calculate.es.js",
   "module": "dist/final-form-calculate.es.js",
   "files": ["dist"],
+  "typings": "dist/index.d.ts",
   "scripts": {
     "start": "nps",
     "test": "nps test",
