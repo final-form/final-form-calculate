@@ -57,6 +57,7 @@ module.exports = {
     },
     copyTypes: series(
       npsUtils.copy('src/*.js.flow dist'),
+      npsUtils.copy('src/*.d.ts dist'),
       npsUtils.copy(
         'dist/index.js.flow dist --rename="final-form-calculate.cjs.js.flow"'
       ),
