@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "noEmit": true,
+    "strict": true,
+    "lib": ["es6"]
+  },
+  "include": ["./src/**/*"]
+}
