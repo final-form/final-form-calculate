@@ -52,6 +52,16 @@ const decorator = createDecorator(
     }
   },
   {
+    field: 'foo', // when the value of foo changes...
+    updates: {
+      // ...asynchronously set field "doubleFoo" to twice the value using a promise
+      doubleFoo: (fooValue, allValues) =>
+        new Promise(resolve => {
+          setTimeout(() => resolve(fooValue * 2), 100)
+        })
+    }
+  },
+  {
     field: /\.timeFrom/, // when a deeper field matching this pattern changes...
     updates: (value, name, allValues) => {
       const toField = name.replace('timeFrom', 'timeTo')
@@ -123,10 +133,10 @@ A pattern to match a field with.
 
 Either an object of updater functions or a function that generates updates for multiple fields.
 
-### `UpdatesByName: { [FieldName]: (value: any, allValues: Object) => any }`
+### `UpdatesByName: { [FieldName]: (value: any, allValues: Object) => Promise | any }`
 
 Updater functions for each calculated field.
 
-### `UpdatesForAll: (value: any, field: string, allValues: Object) => { [FieldName]: any }`
+### `UpdatesForAll: (value: any, field: string, allValues: Object) => Promise | { [FieldName]: any }`
 
 Takes the value and name of the field that just changed, as well as all the values, and returns an object of fields and new values.
