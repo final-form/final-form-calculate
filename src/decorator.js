@@ -2,6 +2,7 @@
 import type { Decorator, FormApi } from 'final-form'
 import type { Calculation, Updates } from './types'
 import { getIn } from 'final-form'
+import isPromise from './isPromise'
 
 const tripleEquals = (a: any, b: any) => a === b
 const createDecorator = (...calculations: Calculation[]): Decorator => (
@@ -21,13 +22,30 @@ const createDecorator = (...calculations: Calculation[]): Decorator => (
           if (!isEqual(next, previous)) {
             if (typeof updates === 'function') {
               const results = updates(next, field, values)
-              Object.keys(results).forEach(destField => {
-                form.change(destField, results[destField])
-              })
+
+              if (isPromise(results)) {
+                results.then(resolved => {
+                  Object.keys(resolved).forEach(destField => {
+                    form.change(destField, resolved[destField])
+                  })
+                })
+              } else {
+                Object.keys(results).forEach(destField => {
+                  form.change(destField, results[destField])
+                })
+              }
             } else {
               Object.keys(updates).forEach(destField => {
                 const update = updates[destField]
-                form.change(destField, update(next, values))
+                const result = update(next, values)
+
+                if (isPromise(result)) {
+                  result.then(resolved => {
+                    form.change(destField, resolved)
+                  })
+                } else {
+                  form.change(destField, result)
+                }
               })
             }
           }
