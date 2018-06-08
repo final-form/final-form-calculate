@@ -2,7 +2,7 @@ import resolve from 'rollup-plugin-node-resolve'
 import babel from 'rollup-plugin-babel'
 import flow from 'rollup-plugin-flow'
 import commonjs from 'rollup-plugin-commonjs'
-import uglify from 'rollup-plugin-uglify'
+import { uglify } from 'rollup-plugin-uglify'
 import replace from 'rollup-plugin-replace'
 import pkg from './package.json'
 
@@ -42,9 +42,7 @@ export default {
     },
     output
   ),
-  external: umd
-    ? []
-    : Object.keys(pkg.peerDependencies || {}),
+  external: umd ? [] : Object.keys(pkg.peerDependencies || {}),
   plugins: [
     resolve({ jsnext: true, main: true }),
     flow(),
