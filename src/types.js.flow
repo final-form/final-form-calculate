@@ -2,12 +2,13 @@
 type FieldName = string
 export type FieldPattern = FieldName | RegExp | FieldName[]
 export type UpdatesByName = {
-  [FieldName]: (value: any, allValues: ?Object) => any
+  [FieldName]: (value: any, allValues: ?Object, prevValues: ?Object,) => any
 }
 export type UpdatesForAll = (
   value: any,
   field: string,
-  allValues: ?Object
+  allValues: ?Object,
+  prevValues: ?Object
 ) => { [FieldName]: any }
 export type Updates = UpdatesByName | UpdatesForAll
 
