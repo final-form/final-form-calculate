@@ -661,7 +661,7 @@ describe('decorator', () => {
     expect(bar.mock.calls[1][0].value).toBe('foo')
   })
 
-  fit('should pass previous values to update function with array fields', () => {
+  it('should pass previous values to update function with array fields', () => {
     const initialValues = {
       list: [
         {
