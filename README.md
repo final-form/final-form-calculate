@@ -106,7 +106,7 @@ const undecorate = decorator(form)
   - [`Calculation: { field: FieldPattern, updates: Updates }`](#calculation--field-fieldpattern-updates-updates-)
   - [`FieldName: string`](#fieldname-string)
   - [`FieldPattern: FieldName | RegExp`](#fieldpattern-fieldname--regexp)
-  - [`Updates: { [FieldName]: (value: any, allValues: Object) => any }`](#updates--fieldname-value-any-allvalues-object--any-)
+  - [`Updates: { [FieldName]: (value: any, allValues: Object, prevValues: Object) => any }`](#updates--fieldname-value-any-allvalues-object--any-)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
