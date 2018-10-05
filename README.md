@@ -44,6 +44,13 @@ const decorator = createDecorator(
     }
   },
   {
+    field: 'bar', // when the value of bar changes...
+    updates: {
+      // ...set field "foo" to previous value of bar
+      foo: (fooValue, allValues, prevValues) => prevValues.bar
+    }
+  },
+  {
     field: /items\[\d+\]/, // when a field matching this pattern changes...
     updates: {
       // ...sets field "total" to the sum of all items
@@ -91,15 +98,15 @@ const undecorate = decorator(form)
 
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-* [Example](#example)
-  * [Calculated Fields Example](#calculated-fields-example)
-* [API](#api)
-  * [`createDecorator: (...calculations: Calculation[]) => Decorator`](#createdecorator-calculations-calculation--decorator)
-* [Types](#types)
-  * [`Calculation: { field: FieldPattern, updates: Updates }`](#calculation--field-fieldpattern-updates-updates-)
-  * [`FieldName: string`](#fieldname-string)
-  * [`FieldPattern: FieldName | RegExp`](#fieldpattern-fieldname--regexp)
-  * [`Updates: { [FieldName]: (value: any, allValues: Object) => any }`](#updates--fieldname-value-any-allvalues-object--any-)
+- [Example](#example)
+  - [Calculated Fields Example](#calculated-fields-example)
+- [API](#api)
+  - [`createDecorator: (...calculations: Calculation[]) => Decorator`](#createdecorator-calculations-calculation--decorator)
+- [Types](#types)
+  - [`Calculation: { field: FieldPattern, updates: Updates }`](#calculation--field-fieldpattern-updates-updates-)
+  - [`FieldName: string`](#fieldname-string)
+  - [`FieldPattern: FieldName | RegExp`](#fieldpattern-fieldname--regexp)
+  - [`Updates: { [FieldName]: (value: any, allValues: Object) => any }`](#updates--fieldname-value-any-allvalues-object--any-)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -133,10 +140,10 @@ A pattern to match a field with.
 
 Either an object of updater functions or a function that generates updates for multiple fields.
 
-### `UpdatesByName: { [FieldName]: (value: any, allValues: Object) => Promise | any }`
+### `UpdatesByName: { [FieldName]: (value: any, allValues: Object, prevValues: Object) => Promise | any }`
 
 Updater functions for each calculated field.
 
-### `UpdatesForAll: (value: any, field: string, allValues: Object) => Promise | { [FieldName]: any }`
+### `UpdatesForAll: (value: any, field: string, allValues: Object, prevValues: Object) => Promise | { [FieldName]: any }`
 
 Takes the value and name of the field that just changed, as well as all the values, and returns an object of fields and new values.
