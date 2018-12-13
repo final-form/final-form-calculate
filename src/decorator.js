@@ -21,8 +21,7 @@ const createDecorator = (...calculations: Calculation[]): Decorator => (
           const previous = previousValues && getIn(previousValues, field)
           if (!isEqual(next, previous)) {
             if (typeof updates === 'function') {
-              const results = updates(next, field, values)
-
+              const results = updates(next, field, values, previousValues)
               if (isPromise(results)) {
                 results.then(resolved => {
                   Object.keys(resolved).forEach(destField => {
@@ -37,8 +36,7 @@ const createDecorator = (...calculations: Calculation[]): Decorator => (
             } else {
               Object.keys(updates).forEach(destField => {
                 const update = updates[destField]
-                const result = update(next, values)
-
+                const result = update(next, values, previousValues)
                 if (isPromise(result)) {
                   result.then(resolved => {
                     form.change(destField, resolved)

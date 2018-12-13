@@ -5,13 +5,14 @@ export type FieldName = string
 export type FieldPattern = FieldName | RegExp | FieldName[]
 
 export type UpdatesByName = {
-  [FieldName: string]: (value: any, allValues?: Object) => any
+  [FieldName: string]: (value: any, allValues?: Object, prevValues?: Object) => any
 }
 
 export type UpdatesForAll = (
   value: any,
   field: string,
   allValues?: Object,
+  prevValues?: Object,
 ) => { [FieldName: string]: any }
 
 export type Updates = UpdatesByName | UpdatesForAll

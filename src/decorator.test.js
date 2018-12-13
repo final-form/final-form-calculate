@@ -570,4 +570,162 @@ describe('decorator', () => {
     expect(bar).toHaveBeenCalledTimes(3)
     expect(bar.mock.calls[2][0].value).toEqual({ id: 4, name: 'superbazbar' })
   })
+
+  it('should pass previous values to the update function', () => {
+    const form = createForm({ onSubmit: onSubmitMock })
+    const spy = jest.fn()
+    const foo = jest.fn()
+    const bar = jest.fn()
+    form.subscribe(spy, { values: true })
+    form.registerField('foo', foo, { value: true })
+    form.registerField('bar', bar, { value: true })
+    form.initialize({ foo: 'foo' })
+    const decorator = createDecorator({
+      field: 'foo',
+      updates: {
+        bar: (_, __, prevValues) => prevValues.foo
+      }
+    })
+    const unsubscribe = decorator(form)
+    expect(typeof unsubscribe).toBe('function')
+
+    expect(spy).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalledTimes(2)
+    expect(spy.mock.calls[0][0].values).toEqual({})
+
+    expect(foo).toHaveBeenCalled()
+    expect(foo).toHaveBeenCalledTimes(2)
+    expect(foo.mock.calls[0][0].value).toBeUndefined()
+
+    expect(bar).toHaveBeenCalled()
+    expect(bar).toHaveBeenCalledTimes(1)
+    expect(bar.mock.calls[0][0].value).toBeUndefined()
+
+    // change foo (should trigger calculation on bar)
+    form.change('foo', 'baz')
+
+    expect(spy).toHaveBeenCalledTimes(4)
+    expect(spy.mock.calls[1][0].values).toEqual({ foo: 'foo' })
+    expect(spy.mock.calls[2][0].values).toEqual({ foo: 'baz' })
+    expect(spy.mock.calls[3][0].values).toEqual({ foo: 'baz', bar: 'foo' })
+
+    expect(foo).toHaveBeenCalledTimes(3)
+    expect(foo.mock.calls[2][0].value).toBe('baz')
+
+    expect(bar).toHaveBeenCalledTimes(2)
+    expect(bar.mock.calls[1][0].value).toBe('foo')
+  })
+
+  it('should pass previous values to the update function', () => {
+    const initialValues = { foo: 'foo' }
+    const form = createForm({ initialValues, onSubmit: onSubmitMock })
+    const spy = jest.fn()
+    const foo = jest.fn()
+    const bar = jest.fn()
+    form.subscribe(spy, { values: true })
+    form.registerField('foo', foo, { value: true })
+    form.registerField('bar', bar, { value: true })
+
+    const decorator = createDecorator({
+      field: 'foo',
+      updates: {
+        bar: (_, __, prevValues) => prevValues.foo
+      }
+    })
+    const unsubscribe = decorator(form)
+    expect(typeof unsubscribe).toBe('function')
+
+    expect(spy).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy.mock.calls[0][0].values).toEqual({ foo: 'foo' })
+
+    expect(foo).toHaveBeenCalled()
+    expect(foo).toHaveBeenCalledTimes(1)
+    expect(foo.mock.calls[0][0].value).toBe('foo')
+
+    expect(bar).toHaveBeenCalled()
+    expect(bar).toHaveBeenCalledTimes(1)
+    expect(bar.mock.calls[0][0].value).toBeUndefined()
+
+    // change foo (should trigger calculation on bar)
+    form.change('foo', 'baz')
+
+    expect(spy).toHaveBeenCalledTimes(3)
+    expect(spy.mock.calls[1][0].values).toEqual({ foo: 'baz' })
+    expect(spy.mock.calls[2][0].values).toEqual({ foo: 'baz', bar: 'foo' })
+
+    expect(foo).toHaveBeenCalledTimes(2)
+    expect(foo.mock.calls[1][0].value).toBe('baz')
+
+    expect(bar).toHaveBeenCalledTimes(2)
+    expect(bar.mock.calls[1][0].value).toBe('foo')
+  })
+
+  it('should pass previous values to update function with array fields', () => {
+    const initialValues = {
+      list: [
+        {
+          items: [10, 20, 30]
+        }
+      ]
+    }
+    const form = createForm({ initialValues, onSubmit: onSubmitMock })
+    const spy = jest.fn()
+    const total = jest.fn()
+    const sum = jest.fn((itemValue, allValues) => {
+      return ((allValues.list && allValues.list[0].items) || []).reduce(
+        (sum, item) => sum + item,
+        0
+      )
+    })
+    form.subscribe(spy, { values: true })
+    form.registerField('list[0].items[0]', () => {}, {})
+    form.registerField('list[0].items[1]', () => {}, {})
+    form.registerField('list[0].items[2]', () => {}, {})
+    form.registerField('list[0].total', total, { value: true })
+
+    const decorator = createDecorator({
+      field: /\.items\[\d+\]/,
+      updates: (value, name, all, prevAll) => {
+        const totalField = name.replace(/items\[[0-9]+\]/, 'total')
+        return {
+          [totalField]: sum(value, prevAll)
+        }
+      }
+    })
+    decorator(form)
+
+    expect(spy).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalledTimes(2)
+    expect(spy.mock.calls[0][0].values).toEqual({
+      list: [
+        {
+          items: [10, 20, 30]
+        }
+      ]
+    })
+
+    expect(total).toHaveBeenCalled()
+    expect(total).toHaveBeenCalledTimes(2)
+    expect(total.mock.calls[0][0].value).toBeUndefined()
+
+    expect(sum).toHaveBeenCalled()
+
+    // change first item value
+    form.change('list[0].items[0]', 1)
+
+    expect(sum).toHaveBeenCalled()
+    expect(sum).toHaveBeenCalledTimes(4)
+
+    expect(spy).toHaveBeenCalledTimes(4)
+    expect(spy.mock.calls[1][0].values).toEqual({
+      list: [{ items: [10, 20, 30], total: 0 }]
+    })
+    expect(spy.mock.calls[2][0].values).toEqual({
+      list: [{ items: [1, 20, 30], total: 0 }]
+    })
+    expect(spy.mock.calls[3][0].values).toEqual({
+      list: [{ items: [1, 20, 30], total: 60 }]
+    })
+  })
 })
