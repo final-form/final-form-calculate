@@ -55,7 +55,11 @@ const createDecorator = (...calculations: Calculation[]): Decorator => (
           } else {
             // field is a either array or regex
             const matches = Array.isArray(field)
-              ? name => ~field.indexOf(name)
+              ? name =>
+                  ~field.indexOf(name) ||
+                  field.findIndex(
+                    f => f instanceof RegExp && (f: RegExp).test(name)
+                  ) !== -1
               : name => (field: RegExp).test(name)
             fields.forEach(fieldName => {
               if (matches(fieldName)) {
