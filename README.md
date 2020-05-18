@@ -132,7 +132,7 @@ A calculation to perform, with an optional `isEqual` predicate to determine if a
 
 ### `FieldName: string`
 
-### `FieldPattern: FieldName | RegExp | FieldName[]`
+### `FieldPattern: FieldName | RegExp | (FieldName | RegExp)[]`
 
 A pattern to match a field with.
 
