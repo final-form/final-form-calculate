@@ -1,13 +1,13 @@
 // @flow
-import type { Decorator, FormApi } from 'final-form'
+import type { Decorator, FormApi, FormValuesShape } from 'final-form'
 import type { Calculation, Updates } from './types'
 import { getIn } from 'final-form'
 import isPromise from './isPromise'
 
 const tripleEquals = (a: any, b: any) => a === b
-const createDecorator = (...calculations: Calculation[]): Decorator => (
-  form: FormApi
-) => {
+const createDecorator = <FormValues: FormValuesShape>(
+  ...calculations: Calculation[]
+): Decorator<FormValues> => (form: FormApi<FormValues>) => {
   let previousValues = {}
   const unsubscribe = form.subscribe(
     ({ values }) => {
