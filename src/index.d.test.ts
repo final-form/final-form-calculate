@@ -24,5 +24,11 @@ createDecorator(
     updates: (value, field, allValues) => {
       return { ...allValues }
     },
+  },
+  {
+    field: ['foo', /ba/],
+    updates: (value, field, allValues) => {
+      return { ...allValues }
+    }
   }
 )

@@ -1,6 +1,6 @@
 // @flow
 type FieldName = string
-export type FieldPattern = FieldName | RegExp | FieldName[]
+export type FieldPattern = FieldName | RegExp | (FieldName | RegExp)[]
 export type UpdatesByName = {
   [FieldName]: (value: any, allValues: ?Object, prevValues: ?Object,) => any
 }
