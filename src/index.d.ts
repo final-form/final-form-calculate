@@ -23,6 +23,6 @@ export type Calculation = {
   isEqual?: (a: any, b: any) => boolean,
 }
 
-export default function createDecorator(
+export default function createDecorator<FormValues = object>(
   ...calculations: Calculation[]
-): Decorator
+): Decorator<FormValues>
