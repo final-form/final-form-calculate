@@ -49,25 +49,37 @@ const createDecorator = <FormValues: FormValuesShape>(
           }
         }
         const fields = form.getRegisteredFields()
-        calculations.forEach(({ field, isEqual, updates }) => {
-          if (typeof field === 'string') {
-            runUpdates(field, isEqual || tripleEquals, updates)
-          } else {
-            // field is a either array or regex
-            const matches = Array.isArray(field)
-              ? name =>
-                  ~field.indexOf(name) ||
-                  field.findIndex(
-                    f => f instanceof RegExp && (f: RegExp).test(name)
-                  ) !== -1
-              : name => (field: RegExp).test(name)
-            fields.forEach(fieldName => {
-              if (matches(fieldName)) {
-                runUpdates(fieldName, isEqual || tripleEquals, updates)
-              }
-            })
+        calculations.forEach(
+          ({ field, isEqual, updates, updateOnPristine = true }) => {
+            if (
+              (updateOnPristine && typeof field === 'string') ||
+              (!updateOnPristine &&
+                typeof field === 'string' &&
+                !form.getFieldState(field).pristine)
+            ) {
+              runUpdates(field, isEqual || tripleEquals, updates)
+            } else if (typeof field !== 'string') {
+              // field is a either array or regex
+              const matches = Array.isArray(field)
+                ? name =>
+                    ~field.indexOf(name) ||
+                    field.findIndex(
+                      f => f instanceof RegExp && (f: RegExp).test(name)
+                    ) !== -1
+                : name => (field: RegExp).test(name)
+              fields.forEach(fieldName => {
+                if (
+                  (updateOnPristine && matches(fieldName)) ||
+                  (!updateOnPristine &&
+                    matches(fieldName) &&
+                    !form.getFieldState(fieldName).pristine)
+                ) {
+                  runUpdates(fieldName, isEqual || tripleEquals, updates)
+                }
+              })
+            }
           }
-        })
+        )
         previousValues = values
       })
     },
