@@ -20,6 +20,7 @@ export type Updates = UpdatesByName | UpdatesForAll
 export type Calculation = {
   field: FieldPattern,
   updates: Updates,
+  updateOnPristine?: boolean,
   isEqual?: (a: any, b: any) => boolean,
 }
 
