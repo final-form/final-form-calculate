@@ -4,25 +4,25 @@ export type FieldName = string
 
 export type FieldPattern = FieldName | RegExp | (FieldName | RegExp)[]
 
-export type UpdatesByName = {
-  [FieldName: string]: (value: any, allValues?: Object, prevValues?: Object) => any
+export type UpdatesByName<T> = {
+  [FieldName: string]: (value: any, allValues?: T, prevValues?: T) => any
 }
 
-export type UpdatesForAll = (
-  value: any,
+export type UpdatesForAll<T> = (
+  value: T[keyof T],
   field: string,
-  allValues?: Object,
-  prevValues?: Object,
+  allValues?: T,
+  prevValues?: T
 ) => { [FieldName: string]: any }
 
-export type Updates = UpdatesByName | UpdatesForAll
+export type Updates<T> = UpdatesByName<T> | UpdatesForAll<T>
 
-export type Calculation = {
-  field: FieldPattern,
-  updates: Updates,
-  isEqual?: (a: any, b: any) => boolean,
+export type Calculation<T extends object = Object> = {
+  field: FieldPattern
+  updates: Updates<T>
+  isEqual?: (a: any, b: any) => boolean
 }
 
-export default function createDecorator<FormValues = object>(
-  ...calculations: Calculation[]
-): Decorator<FormValues>
+export default function createDecorator<T extends Object>(
+  ...calculations: Calculation<T>[]
+): Decorator
