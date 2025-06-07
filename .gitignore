@@ -2,10 +2,12 @@
 *.iml
 .nyc_output
 coverage
-flow-coverage
 node_modules
 dist
 lib
 es
 npm-debug.log
 .DS_Store
+*.d.test.ts
+*.tgz
+*.log
