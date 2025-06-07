@@ -1,20 +1,19 @@
-// @flow
-import type { Decorator, FormApi, FormValuesShape } from 'final-form'
+import type { Decorator, FormApi } from 'final-form'
 import type { Calculation, Updates } from './types'
 import { getIn } from 'final-form'
 import isPromise from './isPromise'
 
 const tripleEquals = (a: any, b: any) => a === b
-const createDecorator = <FormValues: FormValuesShape>(
+const createDecorator = <FormValues extends Record<string, any> = Record<string, any>>(
   ...calculations: Calculation[]
 ): Decorator<FormValues> => (form: FormApi<FormValues>) => {
-  let previousValues = {}
+  let previousValues: FormValues | undefined
   const unsubscribe = form.subscribe(
     ({ values }) => {
       form.batch(() => {
         const runUpdates = (
           field: string,
-          isEqual: (any, any) => boolean,
+          isEqual: (a: any, b: any) => boolean,
           updates: Updates
         ) => {
           const next = values && getIn(values, field)
@@ -55,12 +54,12 @@ const createDecorator = <FormValues: FormValuesShape>(
           } else {
             // field is a either array or regex
             const matches = Array.isArray(field)
-              ? name =>
-                  ~field.indexOf(name) ||
-                  field.findIndex(
-                    f => f instanceof RegExp && (f: RegExp).test(name)
-                  ) !== -1
-              : name => (field: RegExp).test(name)
+              ? (name: string) =>
+                ~field.indexOf(name) ||
+                field.findIndex(
+                  f => f instanceof RegExp && (f as RegExp).test(name)
+                ) !== -1
+              : (name: string) => (field as RegExp).test(name)
             fields.forEach(fieldName => {
               if (matches(fieldName)) {
                 runUpdates(fieldName, isEqual || tripleEquals, updates)

@@ -1,7 +1,0 @@
-// @flow
-import type { Decorator, FormValuesShape } from 'final-form'
-import type { Calculation } from './types'
-
-declare export default function createDecorator<FormValues: FormValuesShape>(
-  ...calculations: Calculation[]
-): Decorator<FormValues>

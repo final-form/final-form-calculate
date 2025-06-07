@@ -1,7 +1,7 @@
-import { createForm } from 'final-form'
+import { createForm, FormApi } from 'final-form'
 import createDecorator from './decorator'
 
-const onSubmitMock = () => {}
+const onSubmitMock = () => { }
 describe('decorator', () => {
   it('should update one field when another changes', () => {
     const form = createForm({ onSubmit: onSubmitMock })
@@ -17,7 +17,7 @@ describe('decorator', () => {
         bar: fooValue => `${fooValue}bar`
       }
     })
-    const unsubscribe = decorator(form)
+    const unsubscribe = decorator(form as unknown as FormApi<Record<string, any>>)
     expect(typeof unsubscribe).toBe('function')
 
     expect(spy).toHaveBeenCalled()
@@ -60,7 +60,7 @@ describe('decorator', () => {
         bar: fooValue => `${fooValue}bar`
       }
     })
-    const unsubscribe = decorator(form)
+    const unsubscribe = decorator(form as unknown as FormApi<Record<string, any>>)
     expect(typeof unsubscribe).toBe('function')
 
     expect(spy).toHaveBeenCalled()
@@ -103,7 +103,7 @@ describe('decorator', () => {
         bar: fooValue => `${fooValue}bar`
       }
     })
-    const unsubscribe = decorator(form)
+    const unsubscribe = decorator(form as unknown as FormApi<Record<string, any>>)
     expect(typeof unsubscribe).toBe('function')
 
     expect(spy).toHaveBeenCalled()
@@ -144,10 +144,10 @@ describe('decorator', () => {
     const decorator = createDecorator({
       field: 'foo',
       updates: {
-        bar: fooValue => promise
+        bar: _fooValue => promise
       }
     })
-    const unsubscribe = decorator(form)
+    const unsubscribe = decorator(form as unknown as FormApi<Record<string, any>>)
     expect(typeof unsubscribe).toBe('function')
 
     expect(spy).toHaveBeenCalled()
@@ -191,7 +191,7 @@ describe('decorator', () => {
       field: 'foo',
       updates: () => promise
     })
-    const unsubscribe = decorator(form)
+    const unsubscribe = decorator(form as unknown as FormApi<Record<string, any>>)
     expect(typeof unsubscribe).toBe('function')
 
     expect(spy).toHaveBeenCalled()
@@ -236,7 +236,7 @@ describe('decorator', () => {
         bar: fooValue => `${fooValue}bar`
       }
     })
-    const unsubscribe = decorator(form)
+    const unsubscribe = decorator(form as unknown as FormApi<Record<string, any>>)
     expect(typeof unsubscribe).toBe('function')
 
     expect(spy).toHaveBeenCalled()
@@ -287,15 +287,15 @@ describe('decorator', () => {
       (allValues.items || []).reduce((sum, item) => sum + item, 0)
     )
     form.subscribe(spy, { values: true })
-    form.registerField('items[0]', () => {}, {})
-    form.registerField('items[1]', () => {}, {})
-    form.registerField('items[2]', () => {}, {})
+    form.registerField('items[0]', () => { }, {})
+    form.registerField('items[1]', () => { }, {})
+    form.registerField('items[2]', () => { }, {})
     form.registerField('total', total, { value: true })
     const decorator = createDecorator({
       field: /items\[\d+\]/,
       updates: { total: sum }
     })
-    decorator(form)
+    decorator(form as unknown as FormApi<Record<string, any>>)
 
     expect(spy).toHaveBeenCalled()
     expect(spy).toHaveBeenCalledTimes(1)
@@ -342,13 +342,16 @@ describe('decorator', () => {
     const form = createForm({ onSubmit: onSubmitMock })
     const spy = jest.fn()
     const total = jest.fn()
-    const sum = jest.fn((itemValue, allValues) =>
-      (allValues.list[0].items || []).reduce((sum, item) => sum + item, 0)
-    )
+    const sum = jest.fn((itemValue, allValues) => {
+      return ((allValues?.list && allValues.list[0].items) || []).reduce(
+        (sum, item) => sum + item,
+        0
+      )
+    })
     form.subscribe(spy, { values: true })
-    form.registerField('list[0].items[0]', () => {}, {})
-    form.registerField('list[0].items[1]', () => {}, {})
-    form.registerField('list[0].items[2]', () => {}, {})
+    form.registerField('list[0].items[0]', () => { }, {})
+    form.registerField('list[0].items[1]', () => { }, {})
+    form.registerField('list[0].items[2]', () => { }, {})
     form.registerField('list[0].total', total, { value: true })
     const decorator = createDecorator({
       field: /\.items\[\d+\]/,
@@ -359,7 +362,7 @@ describe('decorator', () => {
         }
       }
     })
-    decorator(form)
+    decorator(form as unknown as FormApi<Record<string, any>>)
 
     expect(spy).toHaveBeenCalled()
     expect(spy).toHaveBeenCalledTimes(1)
@@ -442,7 +445,7 @@ describe('decorator', () => {
         }
       }
     )
-    decorator(form)
+    decorator(form as unknown as FormApi<Record<string, any>>)
 
     expect(spy).toHaveBeenCalled()
     expect(spy).toHaveBeenCalledTimes(1)
@@ -506,7 +509,7 @@ describe('decorator', () => {
         bar: fooValue => ({ id: fooValue.id + 1, name: `${fooValue.name}bar` })
       }
     })
-    const unsubscribe = decorator(form)
+    const unsubscribe = decorator(form as unknown as FormApi<Record<string, any>>)
     expect(typeof unsubscribe).toBe('function')
 
     expect(spy).toHaveBeenCalled()
@@ -583,10 +586,10 @@ describe('decorator', () => {
     const decorator = createDecorator({
       field: 'foo',
       updates: {
-        bar: (_, __, prevValues) => prevValues.foo
+        bar: (_, __, prevValues) => prevValues?.foo
       }
     })
-    const unsubscribe = decorator(form)
+    const unsubscribe = decorator(form as unknown as FormApi<Record<string, any>>)
     expect(typeof unsubscribe).toBe('function')
 
     expect(spy).toHaveBeenCalled()
@@ -616,7 +619,7 @@ describe('decorator', () => {
     expect(bar.mock.calls[1][0].value).toBe('foo')
   })
 
-  it('should pass previous values to the update function', () => {
+  it('should pass previous values to update function', () => {
     const initialValues = { foo: 'foo' }
     const form = createForm({ initialValues, onSubmit: onSubmitMock })
     const spy = jest.fn()
@@ -629,10 +632,10 @@ describe('decorator', () => {
     const decorator = createDecorator({
       field: 'foo',
       updates: {
-        bar: (_, __, prevValues) => prevValues.foo
+        bar: (_, __, prevValues) => prevValues?.foo
       }
     })
-    const unsubscribe = decorator(form)
+    const unsubscribe = decorator(form as unknown as FormApi<Record<string, any>>)
     expect(typeof unsubscribe).toBe('function')
 
     expect(spy).toHaveBeenCalled()
@@ -673,15 +676,15 @@ describe('decorator', () => {
     const spy = jest.fn()
     const total = jest.fn()
     const sum = jest.fn((itemValue, allValues) => {
-      return ((allValues.list && allValues.list[0].items) || []).reduce(
+      return ((allValues?.list && allValues.list[0].items) || []).reduce(
         (sum, item) => sum + item,
         0
       )
     })
     form.subscribe(spy, { values: true })
-    form.registerField('list[0].items[0]', () => {}, {})
-    form.registerField('list[0].items[1]', () => {}, {})
-    form.registerField('list[0].items[2]', () => {}, {})
+    form.registerField('list[0].items[0]', () => { }, {})
+    form.registerField('list[0].items[1]', () => { }, {})
+    form.registerField('list[0].items[2]', () => { }, {})
     form.registerField('list[0].total', total, { value: true })
 
     const decorator = createDecorator({
@@ -693,7 +696,7 @@ describe('decorator', () => {
         }
       }
     })
-    decorator(form)
+    decorator(form as unknown as FormApi<Record<string, any>>)
 
     expect(spy).toHaveBeenCalled()
     expect(spy).toHaveBeenCalledTimes(2)
@@ -728,4 +731,4 @@ describe('decorator', () => {
       list: [{ items: [1, 20, 30], total: 60 }]
     })
   })
-})
+}) 

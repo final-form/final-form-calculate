@@ -1,6 +1,6 @@
 import isPromise from './isPromise'
 
-var promise = { then: () => {} }
+const promise = { then: () => { } }
 
 describe('calling isPromise', () => {
   it('should return true with a promise', () => {
@@ -33,4 +33,4 @@ describe('calling isPromise', () => {
     expect(isPromise([])).toBe(false)
     expect(isPromise([true])).toBe(false)
   })
-})
+}) 
