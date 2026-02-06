@@ -3,6 +3,147 @@ import createDecorator from './decorator'
 
 const onSubmitMock = () => { }
 describe('decorator', () => {
+  it('should not trigger update on initialValues if updateOnPristine is false', () => {
+    const form = createForm({
+      initialValues: { foo: 'test', bar: 'test' },
+      onSubmit: onSubmitMock
+    })
+    const spy = jest.fn()
+    const foo = jest.fn()
+    const bar = jest.fn()
+    form.subscribe(spy, { values: true })
+    form.registerField('foo', foo, { value: true })
+    form.registerField('bar', bar, { value: true })
+    const decorator = createDecorator({
+      field: 'foo',
+      updateOnPristine: false,
+      updates: {
+        bar: (fooValue) => `${fooValue}bar`
+      }
+    })
+    const unsubscribe = decorator(form)
+    expect(typeof unsubscribe).toBe('function')
+
+    expect(spy).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy.mock.calls[0][0].values).toEqual({ foo: 'test', bar: 'test' })
+
+    expect(foo).toHaveBeenCalled()
+    expect(foo).toHaveBeenCalledTimes(1)
+    expect(foo.mock.calls[0][0].value).toBe('test')
+
+    expect(bar).toHaveBeenCalled()
+    expect(bar).toHaveBeenCalledTimes(1)
+    expect(bar.mock.calls[0][0].value).toBe('test')
+
+    // change foo (should trigger calculation on bar)
+    form.change('foo', 'baz')
+
+    expect(spy).toHaveBeenCalledTimes(3)
+    expect(spy.mock.calls[1][0].values).toEqual({ foo: 'baz', bar: 'test' })
+    expect(spy.mock.calls[2][0].values).toEqual({ foo: 'baz', bar: 'bazbar' })
+
+    expect(foo).toHaveBeenCalledTimes(2)
+    expect(foo.mock.calls[1][0].value).toBe('baz')
+
+    expect(bar).toHaveBeenCalledTimes(2)
+    expect(bar.mock.calls[1][0].value).toBe('bazbar')
+  })
+
+  it('should not trigger update on initialValues if updateOnPristine is false, using array of field names', () => {
+    const form = createForm({
+      initialValues: { foo: 'test', bar: 'test' },
+      onSubmit: onSubmitMock
+    })
+    const spy = jest.fn()
+    const foo = jest.fn()
+    const bar = jest.fn()
+    form.subscribe(spy, { values: true })
+    form.registerField('foo', foo, { value: true })
+    form.registerField('bar', bar, { value: true })
+    const decorator = createDecorator({
+      field: ['cat', 'dog', 'rat', 'foo', 'hog'],
+      updateOnPristine: false,
+      updates: {
+        bar: (fooValue) => `${fooValue}bar`
+      }
+    })
+    const unsubscribe = decorator(form)
+    expect(typeof unsubscribe).toBe('function')
+
+    expect(spy).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy.mock.calls[0][0].values).toEqual({ foo: 'test', bar: 'test' })
+
+    expect(foo).toHaveBeenCalled()
+    expect(foo).toHaveBeenCalledTimes(1)
+    expect(foo.mock.calls[0][0].value).toBe('test')
+
+    expect(bar).toHaveBeenCalled()
+    expect(bar).toHaveBeenCalledTimes(1)
+    expect(bar.mock.calls[0][0].value).toBe('test')
+
+    // change foo (should trigger calculation on bar)
+    form.change('foo', 'baz')
+
+    expect(spy).toHaveBeenCalledTimes(3)
+    expect(spy.mock.calls[1][0].values).toEqual({ foo: 'baz', bar: 'test' })
+    expect(spy.mock.calls[2][0].values).toEqual({ foo: 'baz', bar: 'bazbar' })
+
+    expect(foo).toHaveBeenCalledTimes(2)
+    expect(foo.mock.calls[1][0].value).toBe('baz')
+
+    expect(bar).toHaveBeenCalledTimes(2)
+    expect(bar.mock.calls[1][0].value).toBe('bazbar')
+  })
+
+  it('should not trigger update on initialValues if updateOnPristine is false, using regex for field matcher', () => {
+    const form = createForm({
+      initialValues: { foo: 'test', bar: 'test' },
+      onSubmit: onSubmitMock
+    })
+    const spy = jest.fn()
+    const foo = jest.fn()
+    const bar = jest.fn()
+    form.subscribe(spy, { values: true })
+    form.registerField('foo', foo, { value: true })
+    form.registerField('bar', bar, { value: true })
+    const decorator = createDecorator({
+      field: /^foo$/,
+      updateOnPristine: false,
+      updates: {
+        bar: (fooValue) => `${fooValue}bar`
+      }
+    })
+    const unsubscribe = decorator(form)
+    expect(typeof unsubscribe).toBe('function')
+
+    expect(spy).toHaveBeenCalled()
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy.mock.calls[0][0].values).toEqual({ foo: 'test', bar: 'test' })
+
+    expect(foo).toHaveBeenCalled()
+    expect(foo).toHaveBeenCalledTimes(1)
+    expect(foo.mock.calls[0][0].value).toBe('test')
+
+    expect(bar).toHaveBeenCalled()
+    expect(bar).toHaveBeenCalledTimes(1)
+    expect(bar.mock.calls[0][0].value).toBe('test')
+
+    // change foo (should trigger calculation on bar)
+    form.change('foo', 'baz')
+
+    expect(spy).toHaveBeenCalledTimes(3)
+    expect(spy.mock.calls[1][0].values).toEqual({ foo: 'baz', bar: 'test' })
+    expect(spy.mock.calls[2][0].values).toEqual({ foo: 'baz', bar: 'bazbar' })
+
+    expect(foo).toHaveBeenCalledTimes(2)
+    expect(foo.mock.calls[1][0].value).toBe('baz')
+
+    expect(bar).toHaveBeenCalledTimes(2)
+    expect(bar.mock.calls[1][0].value).toBe('bazbar')
+  })
+
   it('should update one field when another changes', () => {
     const form = createForm({ onSubmit: onSubmitMock })
     const spy = jest.fn()
