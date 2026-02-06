@@ -61,7 +61,7 @@ const createDecorator = <FormValues extends Record<string, any> = Record<string,
               // field is a either array or regex
               const matches = Array.isArray(field)
                 ? (name: string) =>
-                    ~field.indexOf(name) ||
+                    field.indexOf(name) !== -1 ||
                     field.findIndex(
                       f => f instanceof RegExp && (f as RegExp).test(name)
                     ) !== -1
