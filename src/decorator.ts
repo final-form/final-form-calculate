@@ -48,25 +48,37 @@ const createDecorator = <FormValues extends Record<string, any> = Record<string,
           }
         }
         const fields = form.getRegisteredFields()
-        calculations.forEach(({ field, isEqual, updates }) => {
-          if (typeof field === 'string') {
-            runUpdates(field, isEqual || tripleEquals, updates)
-          } else {
-            // field is a either array or regex
-            const matches = Array.isArray(field)
-              ? (name: string) =>
-                ~field.indexOf(name) ||
-                field.findIndex(
-                  f => f instanceof RegExp && (f as RegExp).test(name)
-                ) !== -1
-              : (name: string) => (field as RegExp).test(name)
-            fields.forEach(fieldName => {
-              if (matches(fieldName)) {
-                runUpdates(fieldName, isEqual || tripleEquals, updates)
+        calculations.forEach(
+          ({ field, isEqual, updates, updateOnPristine = true }) => {
+            if (typeof field === 'string') {
+              if (
+                updateOnPristine ||
+                !form.getFieldState(field)?.pristine
+              ) {
+                runUpdates(field, isEqual || tripleEquals, updates)
               }
-            })
+            } else {
+              // field is a either array or regex
+              const matches = Array.isArray(field)
+                ? (name: string) =>
+                    ~field.indexOf(name) ||
+                    field.findIndex(
+                      f => f instanceof RegExp && (f as RegExp).test(name)
+                    ) !== -1
+                : (name: string) => (field as RegExp).test(name)
+              fields.forEach(fieldName => {
+                if (matches(fieldName)) {
+                  if (
+                    updateOnPristine ||
+                    !form.getFieldState(fieldName)?.pristine
+                  ) {
+                    runUpdates(fieldName, isEqual || tripleEquals, updates)
+                  }
+                }
+              })
+            }
           }
-        })
+        )
         previousValues = values
       })
     },
