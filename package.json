@@ -101,5 +101,6 @@
       "path": "dist/final-form-calculate.cjs.js",
       "threshold": "1.2kB"
     }
-  ]
+  ],
+  "types": "dist/index.d.ts"
 }
