@@ -872,4 +872,36 @@ describe('decorator', () => {
       list: [{ items: [1, 20, 30], total: 60 }]
     })
   })
+
+  it('should recalculate fields after form reset when trigger fields are not dirty (#34)', () => {
+    // https://github.com/final-form/final-form-calculate/issues/34
+    // When a form is reset and none of the trigger fields were dirty,
+    // previousValues still equals the new values, so calculations never fire.
+    // The calculated field (total) is cleared by the reset but never recalculated.
+    const form = createForm({
+      onSubmit: onSubmitMock,
+      initialValues: { a: 1, b: 2 }
+    })
+    const decorator = createDecorator({
+      field: 'a',
+      updates: {
+        total: (aValue, allValues: any) => (aValue || 0) + (allValues.b || 0)
+      }
+    })
+    decorator(form)
+
+    const spy = jest.fn()
+    form.subscribe(spy, { values: true })
+
+    // Initial state: total should be calculated
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy.mock.calls[0][0].values).toEqual({ a: 1, b: 2, total: 3 })
+
+    // Reset the form — a and b return to initial values (not dirty)
+    form.reset()
+
+    // total should be recalculated after reset, not left as undefined
+    const lastCall = spy.mock.calls[spy.mock.calls.length - 1]
+    expect(lastCall[0].values.total).toBe(3)
+  })
 }) 

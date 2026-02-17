@@ -9,7 +9,15 @@ const createDecorator = <FormValues extends Record<string, any> = Record<string,
 ): Decorator<FormValues> => (form: FormApi<FormValues>) => {
   let previousValues: FormValues | undefined
   const unsubscribe = form.subscribe(
-    ({ values }) => {
+    ({ values, pristine }) => {
+      // When the form is reset, pristine becomes true and previousValues may still
+      // hold the same field values (if trigger fields were not dirty). In that case
+      // isEqual() would return true and calculations would never run, leaving
+      // calculated fields cleared without being recalculated (#34).
+      // Fix: clear previousValues on reset so all calculations are forced to re-run.
+      if (pristine && previousValues !== undefined) {
+        previousValues = undefined
+      }
       form.batch(() => {
         const runUpdates = (
           field: string,
@@ -82,7 +90,7 @@ const createDecorator = <FormValues extends Record<string, any> = Record<string,
         previousValues = values
       })
     },
-    { values: true }
+    { values: true, pristine: true }
   )
   return unsubscribe
 }
