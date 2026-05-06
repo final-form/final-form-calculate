@@ -103,10 +103,12 @@ const undecorate = decorator(form)
 - [API](#api)
   - [`createDecorator: (...calculations: Calculation[]) => Decorator`](#createdecorator-calculations-calculation--decorator)
 - [Types](#types)
-  - [`Calculation: { field: FieldPattern, updates: Updates }`](#calculation--field-fieldpattern-updates-updates-)
+  - [`Calculation: { field: FieldPattern, isEqual?: (any, any) => boolean, updateOnPristine?: boolean, updates: Updates }`](#calculation--field-fieldpattern-isequal-any-any--boolean-updateonpristine-boolean-updates-updates-)
   - [`FieldName: string`](#fieldname-string)
-  - [`FieldPattern: FieldName | RegExp`](#fieldpattern-fieldname--regexp)
-  - [`Updates: { [FieldName]: (value: any, allValues: Object, prevValues: Object) => any }`](#updates--fieldname-value-any-allvalues-object--any-)
+  - [`FieldPattern: FieldName | RegExp | (FieldName | RegExp)[]`](#fieldpattern-fieldname--regexp--fieldname--regexp)
+  - [`Updates: UpdatesByName | UpdatesForAll`](#updates-updatesbyname--updatesforall)
+  - [`UpdatesByName: { [FieldName]: (value: any, allValues: Object, prevValues: Object) => Promise | any }`](#updatesbyname--fieldname-value-any-allvalues-object-prevvalues-object--promise--any-)
+  - [`UpdatesForAll: (value: any, field: string, allValues: Object, prevValues: Object) => Promise | { [FieldName]: any }`](#updatesforall-value-any-field-string-allvalues-object-prevvalues-object--promise---fieldname-any-)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -126,9 +128,23 @@ A function that takes a set of calculations and returns a 🏁 Final Form
 
 ## Types
 
-### `Calculation: { field: FieldPattern, isEqual?: (any, any) => boolean, updates: Updates }`
+### `Calculation: { field: FieldPattern, isEqual?: (any, any) => boolean, updateOnPristine?: boolean, updates: Updates }`
 
 A calculation to perform, with an optional `isEqual` predicate to determine if a value has really changed (defaults to `===`).
+
+By default, calculations run when the decorator first subscribes, even if the form is still pristine. This is useful when calculated fields should be derived from `initialValues`. Set `updateOnPristine: false` to skip that initial calculation and only run after the source field becomes dirty:
+
+```js
+const decorator = createDecorator({
+  field: 'foo',
+  updateOnPristine: false,
+  updates: {
+    bar: fooValue => `${fooValue}bar`
+  }
+})
+```
+
+`updateOnPristine: false` works with both object-style `updates` and function-style `updates`.
 
 ### `FieldName: string`
 
